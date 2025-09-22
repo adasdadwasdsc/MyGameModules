@@ -64,7 +64,7 @@ local function parseCSV(str, export_md)
     end
     return data
 end
-local csvData = "[[identifier,exp,hp,atk,def,spa,spd,spe
+local csvData = [[identifier,exp,hp,atk,def,spa,spd,spe
 bulbasaur,64,0,0,0,1,0,0
 ivysaur,142,0,0,0,1,1,0
 venusaur,236,0,0,0,2,1,0
@@ -1140,7 +1140,7 @@ miraidon,335,0,0,0,3,0,0
 
 
 
-]]"
+]]
 
 return parseCSV(csvData)
 --[[
@@ -1149,4 +1149,5 @@ wishiwashi-school,217,1,0,0,0,0,0
 minior-anycore,175,0,1,0,1,0,0
 
 --]]
+
 
