@@ -10021,8 +10021,9 @@ local PokedexMisc = {
         classification = "Order",
         flavor_text = "When the Kalos region's ecosystem falls into disarray, it appears and reveals its secret power.",
         egg_icon = nil,
-    },
+    }
 }
 
 -- Return exactly one value for ModuleLoader
 return PokedexMisc
+
