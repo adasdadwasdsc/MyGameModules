@@ -1,5 +1,8 @@
 -- NOTE: Gen 7 are missing color_id, shape_id
-return require(script.Parent.CSV)([[id,identifier,color_id,shape_id,capture_rate,base_happiness,hatch_counter,growth_rate_id,egg_icon,classification,flavor_text
+
+local ModuleLoader = require(game.ServerStorage.ModuleLoader)
+local CSV = ModuleLoader:LoadModule("Data/CSV")
+return CSV([[id,identifier,color_id,shape_id,capture_rate,base_happiness,hatch_counter,growth_rate_id,egg_icon,classification,flavor_text
 
 
 
@@ -1088,7 +1091,7 @@ return require(script.Parent.CSV)([[id,identifier,color_id,shape_id,capture_rate
 963,finizen,,,200,50,40,1,529,Dolphin,"It likes playing with others of its kind using the water ring on its tail. It uses ultrasonic waves to sense the emotions of other living creatures."
 964,palafin,,,45,50,40,1,,Dolphin,"This Pokemon changes its appearance if it hears its allies calling for help. Palafin will never show anybody its moment of transformation."
 965,varoom,,,190,50,20,2,530,Single-Cyl,"It is said that this Pokemon was born when an unknown poison Pokemon entered and inspirited an engine left at a scrap-processing factory."
-966,revavroom,,,75,50,20,2,,Multi-Cyl,"It creates a gas out of poison and minerals from rocks. It then detonates the gas in its cylinders—now numbering eight—to generate energy."
+966,revavroom,,,75,50,20,2,,Multi-Cyl,"It creates a gas out of poison and minerals from rocks. It then detonates the gas in its cylindersÂ—now numbering eightÂ—to generate energy."
 967,cyclizar,,,190,50,30,4,531,Mount,"Apparently Cyclizar has been allowing people to ride on its back since ancient times. Depictions of this have been found in 10,000-year-old murals."
 968,orthworm,,,25,50,35,1,532,Earthworm,"When attacked, this Pokemon will wield the tendrils on its body like fists and pelt the opponent with a storm of punches."
 969,glimmet,,,70,50,30,4,533,Ore,"It absorbs nutrients from cave walls. The petals it wears are made of crystallized poison."
@@ -1131,6 +1134,7 @@ return require(script.Parent.CSV)([[id,identifier,color_id,shape_id,capture_rate
 1006,ironvaliant,,,10,0,50,1,559,Paradox,"It has some similarities to a mad scientist's invention covered in a paranormal magazine."
 1007,koraidon,,,3,0,50,1,560,Paradox,"This seems to be the Winged King mentioned in an old expedition journal. It was said to have split the land with its bare fists."
 1008,miraidon,,,3,0,50,1,561,Paradox,"Much remains unknown about this creature. It resembles Cyclizar, but it is far more ruthless and powerful."
+
 
 
 
