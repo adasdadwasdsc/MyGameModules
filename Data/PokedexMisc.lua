@@ -1,46 +1,68 @@
 -- NOTE: Gen 7 are missing color_id, shape_id
-local function parseCSV(csvData)
-    local lines = {}
-    local headers = {}
-    
-    -- Split into lines
-    for line in csvData:gmatch("[^\r\n]+") do
-        table.insert(lines, line)
-    end
-    
-    -- Parse headers
-    local headerLine = lines[1]
-    for header in headerLine:gmatch("[^,]+") do
-        table.insert(headers, header:gsub("^%s*(.-)%s*$", "%1")) -- trim whitespace
-    end
-    
-    -- Parse data rows
-    local result = {}
-    for i = 2, #lines do
-        local row = {}
-        local values = {}
-        for value in lines[i]:gmatch('([^,]*),?') do
-            table.insert(values, value:gsub("^%s*(.-)%s*$", "%1")) -- trim whitespace
-        end
-        
-        for j, header in ipairs(headers) do
-            local value = values[j]
-            -- Convert numeric values
-            if tonumber(value) then
-                row[header] = tonumber(value)
-            elseif value == "" then
-                row[header] = nil
-            else
-                row[header] = value
-            end
-        end
-        table.insert(result, row)
-    end
-    
-    return result
+local function parseCSV(export_md, str)
+	if not str and type(export_md) == 'string' then
+		str = export_md
+		export_md = {}
+	end
+	if not export_md then
+		export_md = {}
+	end
+	local keys = {}
+	local line1start, line1end = str:find('^[^\n]+\n')
+	for key in str:sub(line1start, line1end-1):gmatch('[^,]+') do
+		table.insert(keys, key)
+	end
+	local data = {}
+	for line in str:sub(line1end+1):gmatch('[^\n]+') do
+		local entry = {}
+		local empty = true
+		local key = 1
+		local charindex = 1
+		while charindex <= #line do
+			local char = line:sub(charindex, charindex)
+			if char == ',' then
+				key = key + 1
+				charindex = charindex + 1
+			else
+				local _, e, value = line:find('([^,]+)', charindex)
+				if char == '"' then
+					_, e, value = line:find('([^"]+)', charindex)
+					e = e + 1
+					while line:sub(e, e+1) == '""' do
+						local _, newE, v = line:find('([^"]+)', e+2)
+						if newE then
+							e = newE + 1
+						else
+							e = e + 2
+						end
+						value = value .. '"' .. (v or '')
+					end
+				end
+				if e and value then
+					local keyname = keys[key]
+					if (not export_md.exclude or not export_md.exclude[keyname]) and (not export_md.include or export_md.include[keyname]) then
+						value = tonumber(value) or value
+						if export_md.map and export_md.map[keyname] then
+							value = export_md.map[keyname](value)
+						end
+						if value ~= nil then
+							entry[keyname] = value
+							empty = false
+						end
+					end
+					key = key + 1
+					charindex = e + 2
+				end
+			end
+		end
+		if not empty then
+			table.insert(data, entry)
+		end
+	end
+	return data
 end
 
--- Then use it like this:
+-- Use the embedded CSV parser instead of script.Parent.CSV
 return parseCSV([[id,identifier,color_id,shape_id,capture_rate,base_happiness,hatch_counter,growth_rate_id,egg_icon,classification,flavor_text
 
 1,bulbasaur,5,8,45,70,20,4,1,Seed,"Bulbasaur can be seen napping in bright sunlight. There is a seed on its back. By soaking up the sun's rays, the seed grows progressively larger."
@@ -1177,6 +1199,7 @@ return parseCSV([[id,identifier,color_id,shape_id,capture_rate,base_happiness,ha
 
 
 ]])
+
 
 
 
