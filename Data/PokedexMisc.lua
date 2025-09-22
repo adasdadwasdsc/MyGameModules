@@ -1,69 +1,64 @@
--- NOTE: Gen 7 are missing color_id, shape_id
-local function parseCSV(export_md, str)
-	if not str and type(export_md) == 'string' then
-		str = export_md
-		export_md = {}
-	end
-	if not export_md then
-		export_md = {}
-	end
-	local keys = {}
-	local line1start, line1end = str:find('^[^\n]+\n')
-	for key in str:sub(line1start, line1end-1):gmatch('[^,]+') do
-		table.insert(keys, key)
-	end
-	local data = {}
-	for line in str:sub(line1end+1):gmatch('[^\n]+') do
-		local entry = {}
-		local empty = true
-		local key = 1
-		local charindex = 1
-		while charindex <= #line do
-			local char = line:sub(charindex, charindex)
-			if char == ',' then
-				key = key + 1
-				charindex = charindex + 1
-			else
-				local _, e, value = line:find('([^,]+)', charindex)
-				if char == '"' then
-					_, e, value = line:find('([^"]+)', charindex)
-					e = e + 1
-					while line:sub(e, e+1) == '""' do
-						local _, newE, v = line:find('([^"]+)', e+2)
-						if newE then
-							e = newE + 1
-						else
-							e = e + 2
-						end
-						value = value .. '"' .. (v or '')
-					end
-				end
-				if e and value then
-					local keyname = keys[key]
-					if (not export_md.exclude or not export_md.exclude[keyname]) and (not export_md.include or export_md.include[keyname]) then
-						value = tonumber(value) or value
-						if export_md.map and export_md.map[keyname] then
-							value = export_md.map[keyname](value)
-						end
-						if value ~= nil then
-							entry[keyname] = value
-							empty = false
-						end
-					end
-					key = key + 1
-					charindex = e + 2
-				end
-			end
-		end
-		if not empty then
-			table.insert(data, entry)
-		end
-	end
-	return data
+-- Data/PokedexMisc.lua - CSV Parser for Pokedex Data
+local PokedexMisc = {}
+local data = {}
+
+-- CSV Parser Functions
+local function splitCSV(str)
+    local t = {}
+    local current = ""
+    local inQuotes = false
+    local i = 1
+    
+    while i <= #str do
+        local char = str:sub(i, i)
+        
+        if char == '"' then
+            inQuotes = not inQuotes
+        elseif char == ',' and not inQuotes then
+            table.insert(t, current)
+            current = ""
+        else
+            current = current .. char
+        end
+        
+        i = i + 1
+    end
+    
+    table.insert(t, current)
+    return t
 end
 
--- Use the embedded CSV parser instead of script.Parent.CSV
-return parseCSV([[id,identifier,color_id,shape_id,capture_rate,base_happiness,hatch_counter,growth_rate_id,egg_icon,classification,flavor_text
+local function parseCSVLine(line)
+    local fields = {}
+    local currentField = ""
+    local i = 1
+    local inQuotes = false
+    
+    while i <= #line do
+        local char = line:sub(i, i)
+        
+        if char == '"' then
+            inQuotes = not inQuotes
+        elseif char == '"' and inQuotes and line:sub(i+1, i+1) == '"' then
+            -- Escaped quote
+            currentField = currentField .. '"'
+            i = i + 1
+        elseif char == ',' and not inQuotes then
+            table.insert(fields, currentField)
+            currentField = ""
+        else
+            currentField = currentField .. char
+        end
+        
+        i = i + 1
+    end
+    
+    table.insert(fields, currentField)
+    return fields
+end
+
+-- Your actual CSV data (paste your CSV content here, replacing the example below)
+local csvContent = [[id,identifier,color_id,shape_id,capture_rate,base_happiness,hatch_counter,growth_rate_id,egg_icon,classification,flavor_text
 
 1,bulbasaur,5,8,45,70,20,4,1,Seed,"Bulbasaur can be seen napping in bright sunlight. There is a seed on its back. By soaking up the sun's rays, the seed grows progressively larger."
 2,ivysaur,5,8,45,70,20,4,,Seed,"There is a bud on this pokemon's back. To support its weight, Ivysaur's legs and trunk grow thick and strong. If it starts spending more time lying in the sunlight, it's a sign that the bud will bloom into a large flower soon."
@@ -1198,8 +1193,54 @@ return parseCSV([[id,identifier,color_id,shape_id,capture_rate,base_happiness,ha
 
 
 
-]])
+]]
 
+-- Parse the CSV data
+local lines = {}
+for line in csvContent:gmatch("[^\r\n]+") do
+    if line:match("^%s*%S") then  -- Skip empty lines
+        table.insert(lines, line)
+    end
+end
 
+-- Process header and data
+if #lines > 0 then
+    local headers = parseCSVLine(lines[1])
+    
+    -- Map header names to indices
+    local headerMap = {}
+    for i, header in ipairs(headers) do
+        headerMap[header:lower():gsub("%s+", "_")] = i
+    end
+    
+    -- Parse data rows
+    for i = 2, #lines do
+        local fields = parseCSVLine(lines[i])
+        if #fields >= #headers then
+            local entry = {}
+            local identifier = ""
+            
+            -- Extract fields based on headers
+            for header, index in pairs(headerMap) do
+                if index <= #fields and fields[index] ~= "" then
+                    if header == "identifier" then
+                        identifier = fields[index]:lower()
+                        entry[header] = identifier
+                    elseif header == "capture_rate" or header == "base_happiness" or header == "hatch_counter" or header == "growth_rate_id" then
+                        entry[header] = tonumber(fields[index]) or 0
+                    else
+                        entry[header] = fields[index]
+                    end
+                end
+            end
+            
+            -- Store by identifier
+            if identifier ~= "" then
+                PokedexMisc[identifier] = entry
+            end
+        end
+    end
+end
 
-
+-- Return the parsed data
+return PokedexMisc
