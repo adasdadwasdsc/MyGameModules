@@ -1,5 +1,5 @@
 -- NOTE: Gen 7 are missing color_id, shape_id
-return require(ServerStorage.Data.CSV)([[id,identifier,color_id,shape_id,capture_rate,base_happiness,hatch_counter,growth_rate_id,egg_icon,classification,flavor_text
+return require(game.ServerStorage.Data.CSV)([[id,identifier,color_id,shape_id,capture_rate,base_happiness,hatch_counter,growth_rate_id,egg_icon,classification,flavor_text
 
 
 
@@ -1137,3 +1137,4 @@ return require(ServerStorage.Data.CSV)([[id,identifier,color_id,shape_id,capture
 
 
 ]])
+
