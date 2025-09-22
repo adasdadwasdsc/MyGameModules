@@ -1,6 +1,47 @@
 -- NOTE: Gen 7 are missing color_id, shape_id
-return require(script.Parent.CSV)([[id,identifier,color_id,shape_id,capture_rate,base_happiness,hatch_counter,growth_rate_id,egg_icon,classification,flavor_text
+local function parseCSV(csvData)
+    local lines = {}
+    local headers = {}
+    
+    -- Split into lines
+    for line in csvData:gmatch("[^\r\n]+") do
+        table.insert(lines, line)
+    end
+    
+    -- Parse headers
+    local headerLine = lines[1]
+    for header in headerLine:gmatch("[^,]+") do
+        table.insert(headers, header:gsub("^%s*(.-)%s*$", "%1")) -- trim whitespace
+    end
+    
+    -- Parse data rows
+    local result = {}
+    for i = 2, #lines do
+        local row = {}
+        local values = {}
+        for value in lines[i]:gmatch('([^,]*),?') do
+            table.insert(values, value:gsub("^%s*(.-)%s*$", "%1")) -- trim whitespace
+        end
+        
+        for j, header in ipairs(headers) do
+            local value = values[j]
+            -- Convert numeric values
+            if tonumber(value) then
+                row[header] = tonumber(value)
+            elseif value == "" then
+                row[header] = nil
+            else
+                row[header] = value
+            end
+        end
+        table.insert(result, row)
+    end
+    
+    return result
+end
 
+-- Then use it like this:
+return parseCSV([[id,identifier,color_id,shape_id,capture_rate,base_happiness,hatch_counter,growth_rate_id,egg_icon,classification,flavor_text
 
 1,bulbasaur,5,8,45,70,20,4,1,Seed,"Bulbasaur can be seen napping in bright sunlight. There is a seed on its back. By soaking up the sun's rays, the seed grows progressively larger."
 2,ivysaur,5,8,45,70,20,4,,Seed,"There is a bud on this pokemon's back. To support its weight, Ivysaur's legs and trunk grow thick and strong. If it starts spending more time lying in the sunlight, it's a sign that the bud will bloom into a large flower soon."
@@ -1136,5 +1177,6 @@ return require(script.Parent.CSV)([[id,identifier,color_id,shape_id,capture_rate
 
 
 ]])
+
 
 
