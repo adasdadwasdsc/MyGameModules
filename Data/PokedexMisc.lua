@@ -1,8 +1,5 @@
 -- NOTE: Gen 7 are missing color_id, shape_id
-
-local ModuleLoader = require(game.ServerStorage.ModuleLoader)
-local CSV = ModuleLoader:LoadModule("Data/CSV")
-return CSV([[id,identifier,color_id,shape_id,capture_rate,base_happiness,hatch_counter,growth_rate_id,egg_icon,classification,flavor_text
+return require(ServerStorage.Data.CSV)([[id,identifier,color_id,shape_id,capture_rate,base_happiness,hatch_counter,growth_rate_id,egg_icon,classification,flavor_text
 
 
 
