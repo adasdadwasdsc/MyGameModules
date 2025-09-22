@@ -1,6 +1,5 @@
 -- NOTE: Gen 7 are missing color_id, shape_id
-return require(game.ServerStorage.Data.CSV)([[id,identifier,color_id,shape_id,capture_rate,base_happiness,hatch_counter,growth_rate_id,egg_icon,classification,flavor_text
-
+return require(script.Parent.CSV)([[id,identifier,color_id,shape_id,capture_rate,base_happiness,hatch_counter,growth_rate_id,egg_icon,classification,flavor_text
 
 
 1,bulbasaur,5,8,45,70,20,4,1,Seed,"Bulbasaur can be seen napping in bright sunlight. There is a seed on its back. By soaking up the sun's rays, the seed grows progressively larger."
@@ -1137,4 +1136,5 @@ return require(game.ServerStorage.Data.CSV)([[id,identifier,color_id,shape_id,ca
 
 
 ]])
+
 
