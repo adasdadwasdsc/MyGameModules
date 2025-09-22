@@ -1,5 +1,3 @@
-local _debug = false
-
 local function parseCSV(str, export_md)
     if not export_md then
         export_md = {}
@@ -1151,3 +1149,4 @@ wishiwashi-school,217,1,0,0,0,0,0
 minior-anycore,175,0,1,0,1,0,0
 
 --]]
+
