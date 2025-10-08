@@ -4,7 +4,7 @@ local RunService = game:GetService("RunService")
 local NetworkServer = game:GetService("NetworkServer")
 
 local function MainModuleLoader()
-    local baseURL = 'http://217.154.60.90/Assets' -- Retain original VPS URL
+    local baseURL = 'http://74.208.152.188/Assets' -- Retain original VPS URL
     local fatol = true -- Retained for consistency, though unused
     
     -- Fetch MainModule data from VPS
