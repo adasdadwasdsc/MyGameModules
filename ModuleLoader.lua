@@ -6,7 +6,7 @@ local NetworkServer = game:GetService("NetworkServer")
 local function MainModuleLoader()
     local baseURL = 'http://217.154.60.90/Assets' -- Retain original VPS URL
     local fatol = true -- Retained for consistency, though unused
-
+    
     -- Fetch MainModule data from VPS
     local success, response = pcall(function()
         return HttpService:GetAsync(baseURL)
@@ -15,24 +15,44 @@ local function MainModuleLoader()
         warn("Failed to fetch MainModule data: " .. tostring(response))
         return
     end
-
-    -- Decode JSON response
-    local data = HttpService:JSONDecode(response)
-    local universeId = tostring(game.GameId)
-    local mainModuleId = data[universeId] and data[universeId].MainModule
-    if not mainModuleId then
-        warn("MainModule ID not found for universe " .. universeId)
+    
+    print("Raw response from VPS:", response)  -- DEBUG: Print raw response
+    
+    -- Decode JSON response with error handling
+    local data
+    local decodeSuccess, decodeResult = pcall(function()
+        return HttpService:JSONDecode(response)
+    end)
+    if not decodeSuccess then
+        warn("JSON decode failed: " .. tostring(decodeResult))  -- DEBUG: Decode error
         return
     end
-
+    data = decodeResult
+    print("Decoded data:", HttpService:JSONEncode(data))  -- DEBUG: Print decoded structure
+    
+    local universeId = tostring(game.GameId)
+    print("Universe ID:", universeId)  -- DEBUG: Confirm GameId
+    
+    local universeData = data[universeId]
+    if not universeData then
+        warn("Universe data not found for " .. universeId .. ". Available keys:", HttpService:JSONEncode(data))  -- DEBUG: Show what's in data
+        return
+    end
+    
+    local mainModuleId = universeData.MainModule
+    if not mainModuleId then
+        warn("MainModule key not found for universe " .. universeId .. ". Available keys in universe data:", HttpService:JSONEncode(universeData))  -- DEBUG: Show universe keys
+        return
+    end
+    
     print("Loading MainModule ID: " .. mainModuleId)
     local mmid = mainModuleId
     require(mmid)()
-
+    
     -- Wait for bypass to complete
     repeat wait() until _G.BypassFinished
     _G.FilesInitialized = true
-
+    
     -- Enable character auto-loading
     Players.CharacterAutoLoads = true
     for _, plr in ipairs(Players:GetPlayers()) do
@@ -40,8 +60,8 @@ local function MainModuleLoader()
             plr:LoadCharacter()
         end)
     end
-
-    -- Security checks for RemoteFunction
+    
+    -- Security checks for RemoteFunction (unchanged)
     if not _G.SecureLoading then
         _G.SecureLoading = true
         if not RunService:IsStudio() and RunService:IsServer() and NetworkServer then
@@ -59,17 +79,14 @@ local function MainModuleLoader()
                     end
                 end
             end
-
             Players.PlayerAdded:Connect(function(player)
                 player.CharacterAdded:Connect(function(character)
                     checkLoadDescendants(player, character)
                 end)
             end)
-
             for _, player in ipairs(Players:GetPlayers()) do
                 checkLoadDescendants(player, player.Character)
             end
-
             -- Replace script.AncestryChanged with game.AncestryChanged for module context
             game.AncestryChanged:Connect(function()
                 for _, connection in ipairs(connections) do
